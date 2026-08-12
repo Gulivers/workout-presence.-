@@ -1,6 +1,28 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  Chart,
+  CategoryScale,
+  Filler,
+  Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip,
+} from 'chart.js'
 import { db } from '../db'
+
+Chart.register(
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
+  Filler,
+  Legend,
+  Tooltip,
+)
 
 const people = ref([])
 const workouts = ref([])
@@ -11,6 +33,11 @@ const backupMessage = ref('')
 const backupError = ref('')
 const importing = ref(false)
 const fileInput = ref(null)
+const chartCanvas = ref(null)
+const selectedPersonId = ref('')
+
+let attendanceChart = null
+let themeObserver = null
 
 const personMap = computed(() => {
   const map = new Map()
@@ -59,18 +86,49 @@ const maxMonthCount = computed(() =>
   Math.max(1, ...workoutsPerMonth.value.map((row) => row.count), 1),
 )
 
-const exerciseTotals = computed(() => {
-  const counts = new Map()
-  for (const exercise of exercises.value) {
-    const name = String(exercise.exercise || '').trim() || 'Untitled'
-    counts.set(name, (counts.get(name) || 0) + 1)
+/** Last 12 weeks with session + exercise counts (zeros included). */
+const weeklyAttendance = computed(() => {
+  const weeks = lastTwelveWeekStarts()
+  const sessions = new Map(weeks.map((week) => [week, 0]))
+  const exerciseCounts = new Map(weeks.map((week) => [week, 0]))
+  const workoutDateById = new Map()
+  const personFilter = selectedPersonId.value
+
+  for (const workout of workouts.value) {
+    if (
+      personFilter &&
+      String(workout.personId) !== String(personFilter)
+    ) {
+      continue
+    }
+
+    const key = weekStartKey(workout.date)
+    workoutDateById.set(workout.id, workout.date)
+    if (key && sessions.has(key)) {
+      sessions.set(key, (sessions.get(key) || 0) + 1)
+    }
   }
 
-  return [...counts.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-    .slice(0, 15)
+  for (const exercise of exercises.value) {
+    const date = workoutDateById.get(exercise.workoutId)
+    if (!date) continue
+    const key = weekStartKey(date)
+    if (!key || !exerciseCounts.has(key)) continue
+    exerciseCounts.set(key, (exerciseCounts.get(key) || 0) + 1)
+  }
+
+  return weeks.map((week) => ({
+    week,
+    label: formatWeekAxis(week),
+    sessions: sessions.get(week) || 0,
+    exercises: exerciseCounts.get(week) || 0,
+  }))
 })
+
+const attendanceTotals = computed(() => ({
+  sessions: weeklyAttendance.value.reduce((sum, row) => sum + row.sessions, 0),
+  exercises: weeklyAttendance.value.reduce((sum, row) => sum + row.exercises, 0),
+}))
 
 function formatMonth(monthKey) {
   const [year, month] = monthKey.split('-').map(Number)
@@ -79,6 +137,194 @@ function formatMonth(monthKey) {
     month: 'short',
     year: 'numeric',
   })
+}
+
+/** Sunday start of the week containing `dateStr` (YYYY-MM-DD). Weeks run Sun–Sat. */
+function weekStartKey(dateStr) {
+  const raw = String(dateStr || '')
+  const [year, month, day] = raw.split('-').map(Number)
+  if (!year || !month || !day) return null
+
+  const date = new Date(year, month - 1, day)
+  if (Number.isNaN(date.getTime())) return null
+
+  date.setDate(date.getDate() - date.getDay())
+
+  return toDateKey(date)
+}
+
+function toDateKey(date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function lastTwelveWeekStarts() {
+  const today = new Date()
+  const thisWeekKey = weekStartKey(toDateKey(today))
+  const [year, month, day] = thisWeekKey.split('-').map(Number)
+  const thisWeek = new Date(year, month - 1, day)
+  const weeks = []
+
+  for (let i = 11; i >= 0; i -= 1) {
+    const week = new Date(thisWeek)
+    week.setDate(thisWeek.getDate() - i * 7)
+    weeks.push(toDateKey(week))
+  }
+
+  return weeks
+}
+
+function formatWeekAxis(weekStart) {
+  const [year, month, day] = weekStart.split('-').map(Number)
+  if (!year || !month || !day) return weekStart
+  const date = new Date(year, month - 1, day)
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${mm}-${dd}-${date.getFullYear()}`
+}
+
+function getChartTheme() {
+  const root = getComputedStyle(document.documentElement)
+  const isDark = document.documentElement.classList.contains('dark')
+  const gold = root.getPropertyValue('--color-gold').trim() || 'oklch(84% 0.19 80.46)'
+  const silver = root.getPropertyValue('--color-silver').trim() || '#c0c0c0'
+  const line = root.getPropertyValue('--color-line').trim() || '#2a2a2a'
+  const beige = root.getPropertyValue('--color-beige').trim() || '#e8e3d8'
+  const silverDim = root.getPropertyValue('--color-silver-dim').trim() || '#a3a3a3'
+
+  return {
+    gold,
+    silver,
+    goldFill: isDark ? 'rgba(224, 180, 74, 0.28)' : 'rgba(196, 148, 42, 0.22)',
+    silverFill: isDark ? 'rgba(192, 192, 192, 0.18)' : 'rgba(120, 110, 95, 0.16)',
+    text: isDark ? silverDim : '#5c564c',
+    grid: isDark ? line : 'rgba(42, 42, 42, 0.12)',
+    legend: isDark ? beige : '#1a1814',
+  }
+}
+
+function destroyAttendanceChart() {
+  if (attendanceChart) {
+    attendanceChart.destroy()
+    attendanceChart = null
+  }
+}
+
+function renderAttendanceChart() {
+  if (!chartCanvas.value || loading.value) return
+
+  const rows = weeklyAttendance.value
+  const theme = getChartTheme()
+
+  destroyAttendanceChart()
+
+  attendanceChart = new Chart(chartCanvas.value, {
+    type: 'line',
+    data: {
+      labels: rows.map((row) => row.label),
+      datasets: [
+        {
+          label: 'Sessions',
+          data: rows.map((row) => row.sessions),
+          borderColor: theme.silver,
+          backgroundColor: theme.silverFill,
+          pointBackgroundColor: theme.silver,
+          pointBorderColor: theme.silver,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+        },
+        {
+          label: 'Exercises',
+          data: rows.map((row) => row.exercises),
+          borderColor: theme.gold,
+          backgroundColor: theme.goldFill,
+          pointBackgroundColor: theme.gold,
+          pointBorderColor: theme.gold,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: theme.legend,
+            boxWidth: 14,
+            boxHeight: 14,
+            usePointStyle: false,
+            font: {
+              family: "'Source Sans 3', ui-sans-serif, system-ui, sans-serif",
+              size: 13,
+            },
+          },
+        },
+        tooltip: {
+          backgroundColor: '#171717',
+          titleColor: '#e8e3d8',
+          bodyColor: '#c0c0c0',
+          borderColor: '#2a2a2a',
+          borderWidth: 1,
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: theme.text,
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 12,
+            font: {
+              size: 11,
+            },
+          },
+          grid: {
+            color: theme.grid,
+          },
+          border: {
+            display: false,
+          },
+        },
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: theme.text,
+            precision: 0,
+            font: {
+              size: 11,
+            },
+          },
+          grid: {
+            color: theme.grid,
+          },
+          border: {
+            display: false,
+          },
+        },
+      },
+    },
+  })
+}
+
+async function refreshAttendanceChart() {
+  await nextTick()
+  renderAttendanceChart()
 }
 
 async function loadData() {
@@ -93,11 +339,19 @@ async function loadData() {
     people.value = personRows
     workouts.value = workoutRows
     exercises.value = exerciseRows
+
+    if (
+      selectedPersonId.value &&
+      !personRows.some((person) => String(person.id) === String(selectedPersonId.value))
+    ) {
+      selectedPersonId.value = ''
+    }
   } catch (err) {
     error.value = 'Could not load reports.'
     console.error(err)
   } finally {
     loading.value = false
+    await refreshAttendanceChart()
   }
 }
 
@@ -205,7 +459,26 @@ function stripMeta(rows) {
   })
 }
 
-onMounted(loadData)
+onMounted(() => {
+  loadData()
+  themeObserver = new MutationObserver(() => {
+    if (!loading.value) renderAttendanceChart()
+  })
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  })
+})
+
+onBeforeUnmount(() => {
+  themeObserver?.disconnect()
+  themeObserver = null
+  destroyAttendanceChart()
+})
+
+watch(weeklyAttendance, () => {
+  if (!loading.value) refreshAttendanceChart()
+})
 </script>
 
 <template>
@@ -276,20 +549,54 @@ onMounted(loadData)
       </div>
 
       <div class="space-y-4">
-        <h3 class="font-display text-xl font-semibold uppercase tracking-[0.08em] text-beige">
-          Exercises performed
-        </h3>
-        <p v-if="!exerciseTotals.length" class="muted">No exercises yet.</p>
-        <ul v-else class="divide-y divide-line">
-          <li
-            v-for="row in exerciseTotals"
-            :key="row.name"
-            class="flex items-center justify-between gap-3 py-2 text-sm"
-          >
-            <span class="font-medium text-beige">{{ row.name }}</span>
-            <span class="text-silver-dim">{{ row.count }}</span>
-          </li>
-        </ul>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h3 class="font-display text-xl font-semibold uppercase tracking-[0.08em] text-beige">
+              Weekly attendance
+            </h3>
+            <p class="mt-2 muted">
+              Last 12 weeks — sessions and exercises as attendance and follow-through.
+            </p>
+          </div>
+
+          <label class="flex w-full flex-col gap-1.5 sm:w-56">
+            <span class="field-label">Person</span>
+            <select
+              v-model="selectedPersonId"
+              class="field-input disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="!people.length"
+            >
+              <option value="">All people</option>
+              <option
+                v-for="person in people"
+                :key="person.id"
+                :value="String(person.id)"
+              >
+                {{ person.name }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div class="rounded-md border border-line bg-panel px-3 py-4 sm:px-4">
+          <div class="mb-4 flex flex-wrap gap-6">
+            <div>
+              <p class="metric-label">Sessions</p>
+              <p class="metric-value mt-1">{{ attendanceTotals.sessions }}</p>
+            </div>
+            <div>
+              <p class="metric-label">Exercises</p>
+              <p class="metric-value mt-1">{{ attendanceTotals.exercises }}</p>
+            </div>
+          </div>
+
+          <div class="relative h-72 w-full sm:h-80">
+            <canvas
+              ref="chartCanvas"
+              aria-label="Area chart of sessions and exercises over the last 12 weeks"
+            />
+          </div>
+        </div>
       </div>
 
       <div class="space-y-4 surface-rule pt-8">
