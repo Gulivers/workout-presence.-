@@ -74,7 +74,7 @@ onBeforeUnmount(() => {
         <RouterLink
           to="/"
           class="flex min-w-0 items-center gap-3 rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-gold/40"
-          aria-label="Workout Planner home"
+          aria-label="Workout Presence home"
         >
           <span
             class="ks-leaf-face gold-leaf flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-gold px-1.5 font-display text-sm font-bold tracking-wide text-ink"
@@ -84,7 +84,7 @@ onBeforeUnmount(() => {
             <span class="relative z-0 text-xs leading-none">+</span>
           </span>
           <h1 class="truncate font-display text-lg font-semibold uppercase tracking-[0.08em] text-beige sm:text-xl">
-            Workout Planner
+            Workout Presence
           </h1>
         </RouterLink>
 
@@ -201,7 +201,7 @@ onBeforeUnmount(() => {
           <RouterLink
             to="/"
             class="flex min-w-0 items-center gap-3 rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-gold/40"
-            aria-label="Workout Planner home"
+            aria-label="Workout Presence home"
             @click="closeMenu"
           >
             <span
@@ -212,7 +212,7 @@ onBeforeUnmount(() => {
               <span class="relative z-0 text-xs leading-none">+</span>
             </span>
             <p class="mobile-nav-title truncate font-display text-lg font-semibold uppercase tracking-[0.08em] text-beige">
-              Workout Planner
+              Workout Presence
             </p>
           </RouterLink>
 

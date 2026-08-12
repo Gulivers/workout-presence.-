@@ -1,5 +1,5 @@
 ---
-name: Workout Planner
+name: Workout Presence
 description: Presence by date in a dark training room—Calendar owns the stage; gold marks only the active win.
 colors:
   ink: "#0F0F0F"
@@ -126,13 +126,13 @@ components:
     padding: "16px 20px"
 ---
 
-# Design System: Workout Planner
+# Design System: Workout Presence
 
 ## Overview
 
 **Creative North Star: "The Dark Training Room"**
 
-Workout Planner reads as a charcoal training room where the Calendar Stage holds the floor. Surfaces stay quiet and flat; presence by date is the job. Person color carries ownership on chips and dots; gold is reserved for the active win—selected nav, primary actions, today, and focus—not decoration.
+Workout Presence reads as a charcoal training room where the Calendar Stage holds the floor. Surfaces stay quiet and flat; presence by date is the job. Person color carries ownership on chips and dots; gold is reserved for the active win—selected nav, primary actions, today, and focus—not decoration.
 
 Density is compact and practical: thin hairline rules, condensed uppercase display type for stage titles and chrome, Source Sans 3 for body and fields. Dark is the default world; light mode mirrors the same structure with paper and soft ink, never a second aesthetic.
 

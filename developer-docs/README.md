@@ -1,10 +1,11 @@
 # Workout Planner — Developer Documentation
 
-Technical documentation for **Workout Planner**, a lightweight personal workout calendar and exercise tracker. The app is frontend-only: all data stays in the browser via IndexedDB (Dexie.js). There is no backend, authentication, or cloud sync.
+Technical documentation for the **Workout Presence** product (architecture / codebase naming: **Workout Planner**): a lightweight personal workout calendar and exercise tracker. The app is frontend-only: all data stays in the browser via IndexedDB (Dexie.js). There is no backend, authentication, or cloud sync.
 
 ## Table of Contents
 
 - [Project Overview](#project-overview)
+- [Product vs architecture naming](#product-vs-architecture-naming)
 - [Technology Stack](#technology-stack)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -20,7 +21,7 @@ Technical documentation for **Workout Planner**, a lightweight personal workout 
 
 ## Project Overview
 
-Workout Planner is a personal-use SPA for managing people, planning workouts on a calendar, attaching exercises to workouts, and reviewing simple local reports.
+**Workout Presence** is a personal-use SPA for managing people, planning workouts on a calendar, attaching exercises to workouts, and reviewing simple local reports. In technical docs, package metadata, and some identifiers, the same app may still appear as **Workout Planner** (see [Product vs architecture naming](#product-vs-architecture-naming)).
 
 Current scope in the codebase:
 
@@ -32,6 +33,22 @@ Current scope in the codebase:
 - **Reports** attendance-style totals plus JSON backup export/import
 
 Data never leaves the browser. Clearing site data removes local records.
+
+## Product vs architecture naming
+
+The product has two intentional names. Do not “fix” architecture identifiers to match the UI brand unless a migration is explicitly required.
+
+| Layer | Name | Where it appears |
+| --- | --- | --- |
+| **UI / product brand** (shown to users) | **Workout Presence** | `index.html` `<title>`, brand headings and home `aria-label`s in `src/App.vue`, root `README.md`, product-facing docs (`PRODUCT.md`, `DESIGN.md`) |
+| **Architecture / codebase** | **Workout Planner** | npm package name `workout-planner` in `package.json`, Dexie database id `WorkoutPlanner` in `src/db.js`, backup JSON field `app: 'WorkoutPlanner'` in Reports export (`src/views/Reports.vue`), `AGENTS.md`, agent titles, and this developer-docs title |
+
+Also related (architecture-side, not the UI brand):
+
+- `localStorage` theme key: `workout-planner-theme`
+- Repo / folder name may be `workout-presence` while the package name remains `workout-planner`
+
+When writing user-facing copy, use **Workout Presence**. When referring to DB ids, backup format, package name, or agent/docs architecture, keep **Workout Planner** / `WorkoutPlanner` as in the code today.
 
 ## Technology Stack
 
@@ -216,7 +233,7 @@ Implemented. Local analytics and backup:
 - Workouts by person
 - Workouts per month (last 12 month keys present in data)
 - Exercises performed (top counts by exercise name)
-- Export all tables as JSON
+- Export all tables as JSON (backup includes `app: 'WorkoutPlanner'`)
 - Import JSON backup (replaces current local data after confirmation)
 
 ### App shell
@@ -240,7 +257,7 @@ Navigation links are rendered in `App.vue` and highlight the active route by exa
 
 ## Database
 
-Defined in `src/db.js`. Database name: **`WorkoutPlanner`**. Schema version: **1**.
+Defined in `src/db.js`. Database name: **`WorkoutPlanner`** (architecture id; UI brand is Workout Presence — see [Product vs architecture naming](#product-vs-architecture-naming)). Schema version: **1**.
 
 ```js
 db.version(1).stores({

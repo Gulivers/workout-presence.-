@@ -12,7 +12,7 @@ Primary users are the owner, people who train with them, and family members. The
 
 ## Product Purpose
 
-Workout Planner is a personal workout calendar and exercise tracker. Users register people, plan workouts by date, and attach exercises to those workouts. Success means seeing who trained when, and what they did, without leaving the browser or managing accounts.
+Workout Presence is a personal workout calendar and exercise tracker. Users register people, plan workouts by date, and attach exercises to those workouts. Success means seeing who trained when, and what they did, without leaving the browser or managing accounts.
 
 ## Positioning
 
@@ -48,7 +48,7 @@ Open / not yet fully implemented in UI:
 
 ## Brand Commitments
 
-Product name: **Workout Planner**. Voice stays plain and practical. No separate marketing brand system was committed.
+Product name (UI): **Workout Presence**. Architecture / repo naming may still say **Workout Planner**. Voice stays plain and practical. No separate marketing brand system was committed.
 
 ## Evidence on Hand
 

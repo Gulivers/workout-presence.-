@@ -1,6 +1,8 @@
-# Workout Planner
+# Workout Presence
 
 Personal workout calendar and exercise tracker. Data stays in your browser via IndexedDB (Dexie).
+
+> Product UI name: **Workout Presence**. Architecture / codebase naming may still use **Workout Planner** (package, Dexie DB id, agent docs).
 
 ## Stack
 
