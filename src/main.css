@@ -1,0 +1,386 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-ink: #0f0f0f;
+  --color-panel: #171717;
+  --color-panel-raised: #1c1c1c;
+  --color-line: #2a2a2a;
+  --color-beige: #e8e3d8;
+  --color-beige-dim: #c9c3b6;
+  --color-silver: #c0c0c0;
+  --color-silver-dim: #a3a3a3;
+  /* Kinpaku gold (impeccable.style neo-kinpaku) */
+  --color-gold: oklch(84% 0.19 80.46);
+  --color-gold-deep: oklch(77% 0.13 82);
+  --color-gold-pale: oklch(86% 0.07 84);
+  --color-danger: #e11d48;
+  --font-sans: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-ink font-sans text-beige antialiased;
+  }
+
+  html:not(.dark) body {
+    @apply bg-[#f3efe6] text-[#1a1814];
+  }
+
+  html:not(.dark) .app-header {
+    /* Keep dark shell like dark mode; only inactive labels get a clearer tone */
+    background-color: rgb(15 15 15 / 0.95);
+    border-color: #2a2a2a;
+  }
+
+  html:not(.dark) .app-header h1 {
+    color: #e8e3d8 !important;
+  }
+
+  html:not(.dark) .app-header .app-nav-link:not(.app-nav-link--active) {
+    color: #d8d2c6 !important;
+  }
+
+  html:not(.dark) .app-header .app-nav-link:not(.app-nav-link--active):hover {
+    color: #f0ece3 !important;
+    background-color: #1c1c1c !important;
+  }
+
+  html:not(.dark) .app-header .app-nav-link--active {
+    color: oklch(14% 0.018 95) !important;
+  }
+
+  html:not(.dark) .app-header .menu-trigger {
+    border-color: var(--color-gold) !important;
+    color: var(--color-gold) !important;
+  }
+
+  html:not(.dark) .app-header .menu-trigger:hover {
+    background-color: rgb(212 175 55 / 0.1) !important;
+  }
+
+  html:not(.dark) .app-header .theme-toggle-btn {
+    border-color: rgb(192 192 192 / 0.4) !important;
+    color: #c0c0c0 !important;
+  }
+
+  html:not(.dark) .app-header .theme-toggle-btn:hover {
+    border-color: var(--color-gold) !important;
+    color: #e8e3d8 !important;
+  }
+
+  /* Mobile menu stays dark like desktop header */
+  html:not(.dark) .mobile-nav-root {
+    background-color: transparent;
+  }
+
+  html:not(.dark) .mobile-nav-root > button.absolute {
+    background-color: rgb(15 15 15 / 0.7) !important;
+  }
+
+  html:not(.dark) .mobile-nav-title {
+    color: #e8e3d8 !important;
+  }
+
+  html:not(.dark) .mobile-nav-close {
+    border-color: var(--color-gold) !important;
+    color: var(--color-gold) !important;
+  }
+
+  html:not(.dark) .mobile-nav-panel {
+    border-color: #2a2a2a !important;
+    background-color: #171717 !important;
+  }
+
+  html:not(.dark) .mobile-nav-panel li {
+    border-color: #2a2a2a !important;
+  }
+
+  html:not(.dark) .mobile-nav-link {
+    color: #d8d2c6 !important;
+  }
+
+  html:not(.dark) .mobile-nav-link:hover {
+    color: #f0ece3 !important;
+  }
+
+  html:not(.dark) .mobile-nav-link--active {
+    color: var(--color-gold) !important;
+    border-color: var(--color-gold) !important;
+  }
+
+  html:not(.dark) .mobile-nav-panel .theme-toggle-btn {
+    border-color: rgb(192 192 192 / 0.5) !important;
+    color: #e8e3d8 !important;
+  }
+
+  html:not(.dark) .mobile-nav-panel .theme-toggle-btn:hover {
+    border-color: var(--color-gold) !important;
+    color: var(--color-gold) !important;
+  }
+
+  html:not(.dark) .mobile-nav-panel .text-silver-dim {
+    color: #a3a3a3 !important;
+  }
+
+  /* Utility remaps: dark-first tokens → readable on light paper.
+     Exclude dark chrome (header + mobile nav) so brand/nav stay light-on-dark. */
+  html:not(.dark) .text-beige:not(.mobile-nav-title) {
+    color: #1a1814 !important;
+  }
+
+  html:not(.dark) .app-header .text-beige,
+  html:not(.dark) .app-header h1,
+  html:not(.dark) .mobile-nav-root .mobile-nav-title,
+  html:not(.dark) .mobile-nav-root .text-beige {
+    color: #e8e3d8 !important;
+  }
+
+  html:not(.dark) .text-beige-dim {
+    color: #4a453f !important;
+  }
+
+  html:not(.dark) .text-silver {
+    color: #5c564e !important;
+  }
+
+  html:not(.dark) .app-header .text-silver,
+  html:not(.dark) .app-header .app-nav-link:not(.app-nav-link--active),
+  html:not(.dark) .mobile-nav-root .text-silver,
+  html:not(.dark) .mobile-nav-root .mobile-nav-link:not(.mobile-nav-link--active) {
+    color: #d8d2c6 !important;
+  }
+
+  html:not(.dark) .text-silver-dim {
+    color: #6b6560 !important;
+  }
+
+  html:not(.dark) .app-header .text-silver-dim,
+  html:not(.dark) .mobile-nav-root .text-silver-dim {
+    color: #a3a3a3 !important;
+  }
+
+  html:not(.dark) .hover\:text-beige:hover {
+    color: #1a1814 !important;
+  }
+
+  html:not(.dark) .app-header .hover\:text-beige:hover,
+  html:not(.dark) .mobile-nav-root .hover\:text-beige:hover {
+    color: #f0ece3 !important;
+  }
+
+  html:not(.dark) .border-line {
+    border-color: #d6d0c4 !important;
+  }
+
+  html:not(.dark) .app-header.border-line,
+  html:not(.dark) .app-header .border-line,
+  html:not(.dark) .mobile-nav-root .border-line {
+    border-color: #2a2a2a !important;
+  }
+
+  html:not(.dark) .divide-line > :not([hidden]) ~ :not([hidden]) {
+    border-color: #d6d0c4;
+  }
+
+  html:not(.dark) .bg-panel {
+    background-color: #ffffff !important;
+  }
+
+  html:not(.dark) .bg-panel-raised {
+    background-color: #ebe6db !important;
+  }
+
+  html:not(.dark) .hover\:bg-panel-raised:hover {
+    background-color: #ebe6db !important;
+  }
+
+  /* Keep ink text on kinpaku gold fills in light mode */
+  html:not(.dark) .gold-leaf,
+  html:not(.dark) .ks-leaf-face.bg-gold,
+  html:not(.dark) .btn-primary {
+    color: oklch(14% 0.018 95) !important;
+  }
+}
+
+@layer components {
+  .page-title {
+    @apply font-display text-4xl font-semibold uppercase tracking-[0.04em] text-beige sm:text-5xl;
+  }
+
+  html:not(.dark) .page-title {
+    @apply text-[#1a1814];
+  }
+
+  .page-lede {
+    @apply mt-2 max-w-prose text-sm text-silver-dim;
+  }
+
+  html:not(.dark) .page-lede {
+    @apply text-[#6b6560];
+  }
+
+  .field-label {
+    @apply font-medium text-beige-dim;
+  }
+
+  html:not(.dark) .field-label {
+    @apply text-[#4a453f];
+  }
+
+  .field-input {
+    @apply rounded-md border border-line bg-panel px-3 py-2 text-sm text-beige outline-none transition-colors placeholder:text-silver-dim/60 focus:border-gold focus:ring-2 focus:ring-gold/25;
+  }
+
+  html:not(.dark) .field-input {
+    @apply border-[#d6d0c4] bg-white text-[#1a1814] placeholder:text-[#9a948a] focus:border-gold-deep focus:ring-gold/30;
+  }
+
+  .btn-primary {
+    @apply rounded-md border border-gold px-4 py-2 text-sm font-semibold text-ink disabled:opacity-60;
+    background: var(--color-gold);
+    isolation: isolate;
+    position: relative;
+    overflow: hidden;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-gold-pale);
+    border-color: var(--color-gold-pale);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:hover:not(:disabled)::before {
+    opacity: 0.26;
+  }
+
+  .btn-primary:active:not(:disabled) {
+    background: var(--color-gold-deep);
+    border-color: var(--color-gold-deep);
+    transform: translateY(0);
+  }
+
+  /* Kinpaku leaf face — textured metallic gold fill */
+  .ks-leaf-face,
+  .btn-primary,
+  .gold-leaf {
+    isolation: isolate;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ks-leaf-face::before,
+  .btn-primary::before,
+  .gold-leaf::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.38;
+    transition: opacity 0.18s ease;
+    background: url('/assets/neo-kinpaku/kinpaku-gold-leaf.png') 68% 44% / 340px no-repeat;
+  }
+
+  .ks-leaf-face:hover::before,
+  .gold-leaf:hover::before {
+    opacity: 0.26;
+  }
+
+  /* Solid gold fills that should carry leaf texture */
+  .bg-gold.ks-leaf-face,
+  .bg-gold.gold-leaf,
+  .gold-leaf {
+    background-color: var(--color-gold) !important;
+    color: oklch(14% 0.018 95);
+    border-color: var(--color-gold);
+  }
+
+  /* Bright kinpaku for gold text / borders (no leaf overlay on glyphs) */
+  .text-gold {
+    color: var(--color-gold) !important;
+  }
+
+  .border-gold {
+    border-color: var(--color-gold) !important;
+  }
+
+  .text-gold-deep {
+    color: var(--color-gold-deep) !important;
+  }
+
+  .border-gold-deep {
+    border-color: var(--color-gold-deep) !important;
+  }
+
+  .hover\:text-gold:hover {
+    color: var(--color-gold) !important;
+  }
+
+  .hover\:border-gold:hover {
+    border-color: var(--color-gold) !important;
+  }
+
+  .hover\:text-gold-deep:hover {
+    color: var(--color-gold-deep) !important;
+  }
+
+  .btn-secondary {
+    @apply rounded-md border border-silver/35 bg-transparent px-4 py-2 text-sm font-medium text-beige transition-colors hover:border-silver hover:bg-panel-raised disabled:opacity-60;
+  }
+
+  html:not(.dark) .btn-secondary {
+    @apply border-[#b8b0a2] text-[#1a1814] hover:bg-[#ebe6db];
+  }
+
+  .btn-ghost {
+    @apply rounded-md px-3 py-1.5 text-sm text-silver transition-colors hover:bg-panel-raised hover:text-beige disabled:opacity-60;
+  }
+
+  html:not(.dark) .btn-ghost {
+    @apply text-[#5c564e] hover:bg-[#ebe6db] hover:text-[#1a1814];
+  }
+
+  .btn-danger {
+    @apply rounded-md px-3 py-1.5 text-sm text-danger transition-colors hover:bg-danger/10 disabled:opacity-60;
+  }
+
+  .surface-rule {
+    @apply border-t border-line;
+  }
+
+  html:not(.dark) .surface-rule {
+    @apply border-[#d6d0c4];
+  }
+
+  .muted {
+    @apply text-sm text-silver-dim;
+  }
+
+  html:not(.dark) .muted {
+    @apply text-[#6b6560];
+  }
+
+  .metric-value {
+    @apply font-display text-5xl font-semibold leading-none tracking-tight text-beige;
+  }
+
+  html:not(.dark) .metric-value {
+    @apply text-[#1a1814];
+  }
+
+  .metric-label {
+    @apply font-display text-xs font-medium uppercase tracking-[0.18em] text-silver-dim;
+  }
+
+  html:not(.dark) .metric-label {
+    @apply text-[#6b6560];
+  }
+}
