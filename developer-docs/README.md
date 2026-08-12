@@ -31,6 +31,7 @@ Current scope in the codebase:
 - **Calendar** month view (FullCalendar) with create/edit/delete workouts and exercises
 - **Dashboard** presence metrics for the current month
 - **Reports** attendance-style totals plus JSON backup export/import
+- **PWA (install-only)** via `manifest.webmanifest` + a minimal service worker (`public/sw.js`) so the site can be installed as an app; no offline cache
 
 Data never leaves the browser. Clearing site data removes local records.
 
@@ -157,8 +158,11 @@ Actual layout under the project root (application source):
 ```text
 workout-presence/
 ├── public/
-│   ├── _redirects         # Cloudflare Pages SPA fallback
-│   └── assets/            # Static assets (e.g. leaf texture)
+│   ├── _redirects              # Cloudflare Pages SPA fallback
+│   ├── manifest.webmanifest    # PWA install metadata
+│   ├── sw.js                   # Install-only service worker (no offline cache)
+│   ├── icon-192.png / icon-512.png
+│   └── assets/                 # Static assets (e.g. leaf texture)
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -170,7 +174,7 @@ workout-presence/
 │   └── README.md          ← this file
 └── src/
     ├── App.vue            # Shell, theme toggle, mobile/desktop nav
-    ├── main.js            # Vue bootstrap, theme boot, db.open()
+    ├── main.js            # Vue bootstrap, theme boot, db.open(), SW register
     ├── main.css           # Tailwind + design tokens + component classes
     ├── router.js          # Route definitions
     ├── db.js              # Dexie database + schema
@@ -185,7 +189,7 @@ Key root files:
 
 | File | Role |
 | --- | --- |
-| `index.html` | HTML entry; mounts `#app`, loads fonts, loads `/src/main.js` |
+| `index.html` | HTML entry; mounts `#app`, loads fonts, manifest/theme-color, loads `/src/main.js` |
 | `vite.config.js` | Enables Vue + Tailwind plugins; excludes FullCalendar packages from `optimizeDeps` |
 | `package.json` | Dependencies and npm scripts (`dev`, `build`, `preview`) |
 | `AGENTS.md` | Agent/contributor constraints (keep the app simple) |

@@ -77,11 +77,11 @@ onBeforeUnmount(() => {
           aria-label="Workout Presence home"
         >
           <span
-            class="ks-leaf-face gold-leaf flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-gold px-1.5 font-display text-sm font-bold tracking-wide text-ink"
+            class="ks-leaf-face gold-leaf flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-gold px-1.5 font-display text-[15px] font-bold tracking-wide text-ink"
             aria-hidden="true"
           >
             <span class="relative z-0">WP</span>
-            <span class="relative z-0 text-xs leading-none">+</span>
+            <span class="relative z-0 text-[13px] leading-none">+</span>
           </span>
           <h1 class="truncate font-display text-lg font-semibold uppercase tracking-[0.08em] text-beige sm:text-xl">
             Workout Presence
@@ -205,11 +205,11 @@ onBeforeUnmount(() => {
             @click="closeMenu"
           >
             <span
-              class="ks-leaf-face gold-leaf flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-gold px-1.5 font-display text-sm font-bold tracking-wide text-ink"
+              class="ks-leaf-face gold-leaf flex h-8 shrink-0 items-center gap-0.5 rounded-md bg-gold px-1.5 font-display text-[15px] font-bold tracking-wide text-ink"
               aria-hidden="true"
             >
               <span class="relative z-0">WP</span>
-              <span class="relative z-0 text-xs leading-none">+</span>
+              <span class="relative z-0 text-[13px] leading-none">+</span>
             </span>
             <p class="mobile-nav-title truncate font-display text-lg font-semibold uppercase tracking-[0.08em] text-beige">
               Workout Presence
